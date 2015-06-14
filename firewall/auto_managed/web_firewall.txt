@@ -1,0 +1,39 @@
+# author: wojtosz // Wojciech Błaszkowski
+
+This script (as is) allows to controll SSH access on firewall. We allow one IP to have
+SSH granted for 3 days.
+
+Idea: Firewall is divided to 3 parts: 
+- header
+- SSH allowed IPs
+- footer
+Both header and footer are static files; includes defined policy. 
+
+Header example:
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+-A INPUT -i lo -j ACCEPT
+-A INPUT -d 127.0.0.0/8 -i eth0 -j DROP
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p icmp -m comment --comment "allow ICMP (including ping)" -j ACCEPT
+-A INPUT -i eth0 -p tcp -m tcp --dport 80 -m comment --comment "allow Nginx" -j ACCEPT
+
+Footer example:
+COMMIT
+
+(yes, just word "COMMIT")
+Those are iptables-restore - ready files. Between them, we put IPs for which SSH access will be allowed.
+This part will be changed during time; since we have some users comming and going. So, for one allowed IP
+there will be a rule:
+
+-A INPUT -s 192.168.0.13 -p tcp -m tcp --dport 22 -j ACCEPT
+
+How to manage those IPs? It is simple. All you have to do is create a file: 
+/var/www/web_firewall/192.168.0.13.ACTIVE
+That file can contain the date of it's creation, like: "1981-12-13 06:00:00"
+
+Firewall script is checking every 15 seconds for new IPs. If any IP will be added or removed,
+firewall will be recreated and new rules will be established.
+
