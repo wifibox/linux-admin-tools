@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# author: wojtosz // Wojciech Błaszkowski
+
 MESRIPT=$(basename $0)
 MYLOCKFILE="/var/run/${MESRIPT}.pid"
 
