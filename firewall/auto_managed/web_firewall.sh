@@ -51,6 +51,8 @@ do
 
 	# create a temporary file for storing firewall data
 	TMP_FIREWALL=$(mktemp -t "${MESRIPT}XXXXXXX")
+
+	# add header
 	echo "${STATIC_HEADER}" >> "${TMP_FIREWALL}"
 
 	# disable IPs older than 3 days
@@ -58,14 +60,15 @@ do
 
 	WEB_IPS=`ls "${IP_DIR}"*.ACTIVE | sed -e 's#.ACTIVE##g' | sed -e "s#${IP_DIR}##g"`
 
-	# compile new firewall
+	# add allowed IPs
 	if [ -n "${WEB_IPS}" ]; then
 		# if there are active IPs, we have to add them
 		for IP in ${WEB_IPS}; do
 			echo "-A INPUT -s ${IP} -p tcp -m tcp --dport ${SSH_PORT} -j ACCEPT" >> "${TMP_FIREWALL}"
 		done
 	fi
-
+	
+	# add footer
 	echo "${STATIC_FOOTER}" >> "${TMP_FIREWALL}"
 
 	if [ -z "`diff ${TMP_FIREWALL} ${IPTABLES_STORE}`" ]; then
