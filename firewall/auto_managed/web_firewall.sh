@@ -56,7 +56,7 @@ do
 	echo "${STATIC_HEADER}" >> "${TMP_FIREWALL}"
 
 	# disable IPs older than 3 days
-	find "${IP_DIR}" -type f -mtime +3 -exec mv "{}" "{}_DISABLED" \;
+	find "${IP_DIR}" -type f -name "*.ACTIVE" -mtime +3 -exec mv "{}" "{}_DISABLED" \;
 
 	WEB_IPS=`ls "${IP_DIR}"*.ACTIVE | sed -e 's#.ACTIVE##g' | sed -e "s#${IP_DIR}##g"`
 
