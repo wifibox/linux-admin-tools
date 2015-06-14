@@ -7,6 +7,7 @@
 MYSQL_SERVERS=$@
 BACKUP_DIR="/backup/mysql/"
 LOG_DIR="${LOG_DIR}"
+SKIP_DBS="information_schema performance_schema"
 
 DATE=$(date "+%Y%m%d")
 
@@ -17,8 +18,9 @@ for SERVER in "${MYSQL_SERVERS}"; do
 	for MYSQL_DBASE in `echo "show databases" | /usr/bin/mysql --defaults-file=/root/.my.cnf-${SERVER} -B -s -h ${SERVER}`; do
 
 		# skip system databases
-		[ "${MYSQL_DBASE}" = "information_schema" ] && continue
-		[ "${MYSQL_DBASE}" = "performance_schema" ] && continue
+		for SKIP_DB in "${SKIP_DBS}"; do
+			[ "${MYSQL_DBASE}" = "${SKIP_DB}" ] && continue 2
+		done
 		
 		# if the backup dir does not exist, create new one
 		[ ! -d "${BACKUP_DIR}/${SERVER}/${DATE}" ] && mkdir -p "${BACKUP_DIR}/${SERVER}/${DATE}"
