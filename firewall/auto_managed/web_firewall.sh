@@ -28,6 +28,7 @@ fi
 
 STATIC_HEADER_FILE='/root/web_firewall/STATIC_HEADER'
 STATIC_FOOTER_FILE='/root/web_firewall/STATIC_FOOTER'
+IP_DIR='/var/www/web_firewall/'
 
 if [ -f "${STATIC_HEADER_FILE}" ]; then
 	STATIC_HEADER=`cat "${STATIC_HEADER_FILE}"`
@@ -51,7 +52,11 @@ do
 	# create a temporary file for storing firewall data
 	TMP_FIREWALL=$(mktemp -t "${MESRIPT}XXXXXXX")
 	echo "${STATIC_HEADER}" >> "${TMP_FIREWALL}"
-	WEB_IPS=`ls /var/www/web_firewall/*.ACTIVE | sed -e 's#.ACTIVE##g' | sed -e 's#/var/www/web_firewall/##g'`
+
+	# disable IPs older than 3 days
+	find "${IP_DIR}" -type f -mtime +3 -exec mv "{}" "{}_DISABLED" \;
+
+	WEB_IPS=`ls "${}"*.ACTIVE | sed -e 's#.ACTIVE##g' | sed -e "s#${IP_DIR}##g"`
 
 	# compile new firewall
 	if [ -n "${WEB_IPS}" ]; then
