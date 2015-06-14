@@ -6,7 +6,7 @@
 # as a backup queue
 MYSQL_SERVERS=$@
 BACKUP_DIR="/backup/mysql/"
-LOG_DIR="${LOG_DIR}"
+LOG_DIR="/var/log/"
 SKIP_DBS="information_schema performance_schema"
 
 DATE=$(date "+%Y%m%d")
