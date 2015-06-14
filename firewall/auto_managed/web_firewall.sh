@@ -56,7 +56,7 @@ do
 	# disable IPs older than 3 days
 	find "${IP_DIR}" -type f -mtime +3 -exec mv "{}" "{}_DISABLED" \;
 
-	WEB_IPS=`ls "${}"*.ACTIVE | sed -e 's#.ACTIVE##g' | sed -e "s#${IP_DIR}##g"`
+	WEB_IPS=`ls "${IP_DIR}"*.ACTIVE | sed -e 's#.ACTIVE##g' | sed -e "s#${IP_DIR}##g"`
 
 	# compile new firewall
 	if [ -n "${WEB_IPS}" ]; then
@@ -68,19 +68,11 @@ do
 
 	echo "${STATIC_FOOTER}" >> "${TMP_FIREWALL}"
 
-	NEW_FIREWALL=`cat ${TMP_FIREWALL}`
-	CUR_FIREWALL=`cat ${IPTABLES_STORE}`
-
-	echo "NEW_FIREWALL: ${NEW_FIREWALL}"
-	echo "CUR_FIREWALL: ${CUR_FIREWALL}"
-
-	if [ "${NEW_FIREWALL}" = "${CUR_FIREWALL}" ]; then
-		echo "nothing to do"
+	if [ -z "`diff ${TMP_FIREWALL} ${IPTABLES_STORE}`" ]; then
 		continue
 	else
 		# check correctness of new rules
 		if [ -z "`echo "${NEW_FIREWALL}" | iptables-restore --test`" ]; then
-			echo "create new firewall"
 			# the new firewall is OK, we can write it as production
 			touch "${IPTABLES_STORE}"
 			# create backup of existing config
