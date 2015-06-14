@@ -3,6 +3,11 @@
 MESRIPT=$(basename $0)
 MYLOCKFILE="/var/run/${MESRIPT}.pid"
 
+SSH_PORT="22"
+IPTABLES_STORE="/etc/iptables"
+ADMIN_EMAIL="bogus@example.com"
+DATE=$(date "+%Y%m%d%H%M")
+
 if [ ! -f "${MYLOCKFILE}" ]; then
 	# "no previous session detected, let's run!"
 	echo $$ > "${MYLOCKFILE}"
@@ -36,9 +41,6 @@ else
 	exit 1
 fi
 
-SSH_PORT="24"
-IPTABLES_STORE="/etc/iptables"
-DATE=$(date "+%Y%m%d%H%M")
 
 while true 
 do
@@ -81,7 +83,7 @@ do
 			rm -f "${TMP_FIREWALL}"
 		else
 			echo "ERROR: ${MESRIPT} FAILED !!"
-			echo "${NEW_FIREWALL}" | mail -s "ERROR: ${MESRIPT} FAILED !!" wojtosz@gmail.com
+			echo "${NEW_FIREWALL}" | mail -s "ERROR: ${MESRIPT} FAILED !!" "${ADMIN_EMAIL}"
 			continue
 		fi
 	fi
