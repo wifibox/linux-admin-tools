@@ -72,9 +72,6 @@ do
 	echo "${STATIC_FOOTER}" >> "${TMP_FIREWALL}"
 
 	if [ -z "`diff ${TMP_FIREWALL} ${IPTABLES_STORE}`" ]; then
-		echo "nothing to do"
-		echo "TMP_FIREWALL:\n"
-		cat "${TMP_FIREWALL}"
 		continue
 	else
 		# check correctness of new rules
