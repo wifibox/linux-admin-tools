@@ -72,6 +72,7 @@ do
 	echo "${STATIC_FOOTER}" >> "${TMP_FIREWALL}"
 
 	if [ -z "`diff ${TMP_FIREWALL} ${IPTABLES_STORE}`" ]; then
+		# there is no difference between present and new version
 		continue
 	else
 		# check correctness of new rules
