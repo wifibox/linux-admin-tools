@@ -44,5 +44,3 @@ for SERVER in ${MYSQL_SERVERS}; do
 	echo "$(date '+%Y-%m-%d %H:%M:%S'): compression of ${SERVER} backups finished" >> "${LOG_DIR}backup_mysql_${SERVER}.log"
 done
 
-exit $?
-
