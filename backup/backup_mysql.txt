@@ -1,0 +1,24 @@
+# author: wojtosz // Wojciech Błaszkowski
+
+invoke like: 
+./backup_mysql.sh localhost
+or
+./backup_mysql.sh localhost 192.168.2.20 my-remote-db-server.com
+
+All you need is a config file, placed in some safe directory. I chosed /root/.
+
+$ cat .my.cnf-localhost 
+[client]                                                                                                                                                                    
+user=backupusr
+password=SeCrEtPaSs
+default-character-set=utf8
+
+$ cat .my.cnf-192.168.2.20
+[client]                                                                                                                                                                    
+user=backupusr
+password=SeCrEtPaSs
+default-character-set=utf8
+
+This allows to have one backup server, to create and store many MySQL db servers 
+in ordered time and order.
+
