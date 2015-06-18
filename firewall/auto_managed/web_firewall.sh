@@ -8,7 +8,6 @@ MYLOCKFILE="/var/run/${MESRIPT}.pid"
 SSH_PORT="22"
 IPTABLES_STORE="/etc/iptables"
 ADMIN_EMAIL="bogus@example.com"
-DATE=$(date "+%Y%m%d%H%M")
 
 if [ ! -f "${MYLOCKFILE}" ]; then
 	# "no previous session detected, let's run!"
@@ -48,6 +47,7 @@ fi
 while true 
 do
 	sleep 15
+	DATE=$(date "+%Y%m%d%H%M")
 
 	# create a temporary file for storing firewall data
 	TMP_FIREWALL=$(mktemp -t "${MESRIPT}XXXXXXX")
@@ -56,7 +56,7 @@ do
 	echo "${STATIC_HEADER}" >> "${TMP_FIREWALL}"
 
 	# disable IPs older than 3 days
-	find "${IP_DIR}" -type f -name "*.ACTIVE" -mtime +3 -exec mv "{}" "{}_DISABLED" \;
+	find "${IP_DIR}" -type f -name "*.ACTIVE" -mtime +3 -exec mv "{}" "{}_DISABLED_${DATE}" \;
 
 	WEB_IPS=`ls "${IP_DIR}"*.ACTIVE 2> /dev/null | sed -e 's#.ACTIVE##g' | sed -e "s#${IP_DIR}##g"`
 
