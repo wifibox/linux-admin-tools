@@ -58,7 +58,7 @@ do
 	# disable IPs older than 3 days
 	find "${IP_DIR}" -type f -name "*.ACTIVE" -mtime +3 -exec mv "{}" "{}_DISABLED" \;
 
-	WEB_IPS=`ls "${IP_DIR}"*.ACTIVE | sed -e 's#.ACTIVE##g' | sed -e "s#${IP_DIR}##g"`
+	WEB_IPS=`ls "${IP_DIR}"*.ACTIVE 2> /dev/null | sed -e 's#.ACTIVE##g' | sed -e "s#${IP_DIR}##g"`
 
 	# add allowed IPs
 	if [ -n "${WEB_IPS}" ]; then
@@ -70,6 +70,11 @@ do
 	
 	# add footer
 	echo "${STATIC_FOOTER}" >> "${TMP_FIREWALL}"
+
+	# check if iptables store exists..
+	if [ ! -f "${IPTABLES_STORE}" ]; then
+		touch "${IPTABLES_STORE}";
+	fi
 
 	if [ -z "`diff ${TMP_FIREWALL} ${IPTABLES_STORE}`" ]; then
 		# there is no difference between present and new version
