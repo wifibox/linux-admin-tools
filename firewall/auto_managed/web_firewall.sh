@@ -78,6 +78,8 @@ do
 
 	if [ -z "`diff ${TMP_FIREWALL} ${IPTABLES_STORE}`" ]; then
 		# there is no difference between present and new version
+		# just remove created temp file
+		rm -f "${TMP_FIREWALL}"
 		continue
 	else
 		# check correctness of new rules
