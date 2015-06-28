@@ -55,17 +55,24 @@ do
 	# add header
 	echo "${STATIC_HEADER}" >> "${TMP_FIREWALL}"
 
-	# disable IPs older than 3 days
-	find "${IP_DIR}" -type f -name "*.ACTIVE" -mtime +3 -exec mv "{}" "{}_DISABLED_${DATE}" \;
-
 	WEB_IPS=`ls "${IP_DIR}"*.ACTIVE 2> /dev/null | sed -e 's#.ACTIVE##g' | sed -e "s#${IP_DIR}##g"`
 
-	# add allowed IPs
+	# manage IPs
 	if [ -n "${WEB_IPS}" ]; then
+
+		# disable IPs older than XX days
+		for IP in ${WEB_IPS}; do
+			# IPfile content format: 
+			# ADD_DATETIME;SERVER_REMOTE_ADDR;VALID_DAYS;ALLOWED_USER_NAME;TYPE;PROJECT_NAME
+			IP_VALID_DAYS=`cat "${IP_DIR}${IP}".ACTIVE | awk -F ';' '{print $3}'"`
+			find "${IP_DIR}" -type f -name "${IP}.ACTIVE" -mtime +${IP_VALID_DAYS} -exec mv "{}" "{}_DISABLED_${DATE}" \;
+		done
+
 		# if there are active IPs, we have to add them
 		for IP in ${WEB_IPS}; do
 			echo "-A INPUT -s ${IP} -p tcp -m tcp --dport ${SSH_PORT} -j ACCEPT" >> "${TMP_FIREWALL}"
 		done
+
 	fi
 	
 	# add footer
