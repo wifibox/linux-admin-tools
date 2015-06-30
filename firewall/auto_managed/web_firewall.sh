@@ -64,7 +64,7 @@ do
 		for IP in ${WEB_IPS}; do
 			# IPfile content format: 
 			# ADD_DATETIME;SERVER_REMOTE_ADDR;VALID_DAYS;ALLOWED_USER_NAME;TYPE;PROJECT_NAME
-			IP_VALID_DAYS=`cat "${IP_DIR}${IP}".ACTIVE | awk -F ';' '{print $3}'"`
+			IP_VALID_DAYS=`cat "${IP_DIR}${IP}".ACTIVE | awk -F ';' '{print $3}'`
 			find "${IP_DIR}" -type f -name "${IP}.ACTIVE" -mtime +${IP_VALID_DAYS} -exec mv "{}" "{}_DISABLED_${DATE}" \;
 		done
 
