@@ -15,7 +15,7 @@ if [ ! -f "${MYLOCKFILE}" ]; then
 else
 	# "there is a lockfile, let's check is this an old one"
 	LOCKFILEPID=`cat "${MYLOCKFILE}"`
-	SEARCH=`ps -a | grep "${MESRIPT}" | grep "${LOCKFILEPID}"`
+	SEARCH=`ps -ax | grep "${MESRIPT}" | grep "${LOCKFILEPID}"`
 	if [ -n "${SEARCH}" ]; then
 		echo "another session of this script already running!"
 		exit 0
