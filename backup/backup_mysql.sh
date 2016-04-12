@@ -9,7 +9,7 @@ BACKUP_DIR="/backup/mysql/"
 LOG_DIR="/var/log/"
 SKIP_DBS="information_schema performance_schema"
 
-DATE=$(date "+%Y%m%d")
+DATE=$(date "+%Y%m%d%H%M")
 
 umask 022
 
