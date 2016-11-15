@@ -1,0 +1,48 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides: some-jar-service
+# Required-Start: $local_fs $remote_fs
+# Required-Stop: $local_fs $remote_fs
+# Default-Start: 2 3 4 5
+# Default-Stop: S 0 1 6
+# Short-Description: initscript for some-jar-service
+# Description: initscript for some-jar-service
+### END INIT INFO
+
+export HOME=/home/some-jar-service
+
+set -e
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+NAME=some-jar-service
+SCRIPT=/home/$NAME/bin/$NAME.sh
+
+d_start() {
+	su ${NAME} -l -c "$SCRIPT start"
+}
+
+d_stop() {
+	su ${NAME} -l -c "$SCRIPT stop"
+}
+
+case "$1" in
+start)
+echo "Starting ${NAME}..."
+d_start
+;;
+stop)
+echo "Stopping ${NAME}..."
+d_stop
+;;
+restart|force-reload)
+echo "Restarting ${NAME}..."
+d_stop
+d_start
+;;
+*)
+echo "Usage: sudo /etc/init.d/${NAME} {start|stop|restart}" >&2
+exit 1
+;;
+esac
+
+exit 0
