@@ -1,20 +1,16 @@
 #!/bin/sh
+# for PostgreSQL 9.x (use custom-format archive)
 
-#set -x
-
-BAZY="db01 db02 db03"
-BACKUP_DIR="/home/backup/pgsql"
+DBASES="pgdb01 pgdb02 pgdb03"
+BACKUP_DIR="/mnt/storage/backup/postgres"
+BACKUP_LOG="/var/log/pg_dump.log"
 HOW_MANY=20
 
 DATE=$(date "+%Y%m%d%H%M")
-for BAZA in ${BAZY}; do
-	echo "${DATE} rozpoczynam backup bazy ${BAZA}"
-	su - postgres -c "pg_dump ${BAZA}  > /var/lib/pgsql/9.2/backups/${DATE}-${BAZA}.sql"
-	echo "kopia wykonana, przenoszę do bezpiecznego katalogu..."
-	mv -v "/var/lib/pgsql/9.2/backups/${DATE}-${BAZA}.sql" /home/backup/pgsql/
-	echo "$(date "+%Y%m%d%H%M") rozpoczęcie kompresji kopii bazy.."
-	nice -20 xz /home/backup/pgsql/${DATE}-${BAZA}.sql
-	echo "$(date "+%Y%m%d%H%M") zakończenie kompresję kopii bazy ${BAZA}"
+for DBASE in ${DBASES}; do
+	echo "${DATE} database: ${DBASE} backup START" >> "${BACKUP_LOG}"
+	su - postgres -c "/usr/bin/pg_dump -Fc ${DBASE} > ${BACKUP_DIR}/${DATE}-${DBASE}.fc"
+	echo "$(date "+%Y%m%d%H%M") database: ${DBASE} backup STOP" >> "${BACKUP_LOG}"
 done
 
 # kasowanie starego backupu
