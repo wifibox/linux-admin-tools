@@ -13,12 +13,12 @@ DATE=$(date "+%Y%m%d%H%M")
 
 umask 022
 
-for SERVER in "${MYSQL_SERVERS}"; do
+for SERVER in ${MYSQL_SERVERS}; do
 	echo "$(date '+%Y-%m-%d %H:%M:%S'): backup of ${SERVER} started" >> "${LOG_DIR}backup_mysql_${SERVER}.log"
 	for MYSQL_DBASE in `echo "show databases" | /usr/bin/mysql --defaults-file=/root/.my.cnf-${SERVER} -B -s -h ${SERVER}`; do
 
 		# skip system databases
-		for SKIP_DB in "${SKIP_DBS}"; do
+		for SKIP_DB in ${SKIP_DBS}; do
 			[ "${MYSQL_DBASE}" = "${SKIP_DB}" ] && continue 2
 		done
 		
