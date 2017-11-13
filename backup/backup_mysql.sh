@@ -38,7 +38,7 @@ for SERVER in ${MYSQL_SERVERS}; do
 	echo "$(date '+%Y-%m-%d %H:%M:%S'): compression of ${SERVER} backups started" >> "${LOG_DIR}backup_mysql_${SERVER}.log"
 	for SQL_FILE in ${BACKUP_DIR}/${SERVER}/${DATE}/*.sql; do
 		echo "$(date '+%Y-%m-%d %H-%M:%S'): ${SERVER}: $SQL_FILE compression start" >> "${LOG_DIR}backup_mysql_${SERVER}.log"
-		nice -n 20 xz "${SQL_FILE}";
+		nice -n 20 zstd "${SQL_FILE}";
 		echo "$(date '+%Y-%m-%d %H-%M:%S'): ${SERVER}: $SQL_FILE compression finished" >> "${LOG_DIR}backup_mysql_${SERVER}.log"
 	done
 	echo "$(date '+%Y-%m-%d %H:%M:%S'): compression of ${SERVER} backups finished" >> "${LOG_DIR}backup_mysql_${SERVER}.log"
