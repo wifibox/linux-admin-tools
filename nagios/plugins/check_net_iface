@@ -1,6 +1,11 @@
 #!/bin/sh
 ## check network interface status
 
+NAGIOS_STATE_OK=0
+NAGIOS_STATE_WARNING=1
+NAGIOS_STATE_CRITICAL=2
+NAGIOS_STATE_UNKNOWN=3
+
 OPTIND=1
 
 show_help="$(basename "$0") v1.0 [-h for this help] [-s speed] [-d duplex] [-m mtu]
@@ -55,17 +60,12 @@ fi
 
 if [ ! -d "/sys/class/net/${IF_IFACE_NAME}/" ]; then
 	echo "ERROR: no such interface \"${IF_IFACE_NAME}\"";
-	echo $show_help;
-	exit 1;
+	exit $NAGIOS_STATE_UNKNOWN;
 fi
 
 IF_SPEED=`cat /sys/class/net/${IF_IFACE_NAME}/speed`
 IF_MTU=`cat /sys/class/net/${IF_IFACE_NAME}/mtu`
 IF_DUPLEX=`cat /sys/class/net/${IF_IFACE_NAME}/duplex`
-
-NAGIOS_STATE_OK=0
-NAGIOS_STATE_WARNING=1
-NAGIOS_STATE_CRITICAL=2
 
 if [ "$IF_SPEED" == "$IF_EXP_SPEED" ] && [ "$IF_MTU" == "$IF_EXP_MTU" ] && [ "$IF_DUPLEX" == "$IF_EXP_DUPLEX" ]; then
 	echo "OK: interface \"${IF_IFACE_NAME}\" is fine (speed=$IF_EXP_SPEED, duplex=$IF_EXP_DUPLEX, mtu=$IF_EXP_MTU)";
