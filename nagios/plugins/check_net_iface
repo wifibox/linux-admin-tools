@@ -30,8 +30,8 @@ while getopts "h:?:m:d:s:i:" opt;
 			echo $show_help;
 			exit 0;
 		;;
-		m)  IF_EXP_MTU="$OPTARG";;
-		d)  IF_EXP_DUPLEX="$OPTARG";;
+		m)	IF_EXP_MTU="$OPTARG";;
+		d)	IF_EXP_DUPLEX="$OPTARG";;
 		s)	IF_EXP_SPEED="$OPTARG";;
 		i)	IF_IFACE_NAME="$OPTARG";;
 	esac
