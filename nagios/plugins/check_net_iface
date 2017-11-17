@@ -1,0 +1,76 @@
+#!/bin/sh
+## check network interface status
+
+OPTIND=1
+
+show_help="$(basename "$0") v1.0 [-h for this help] [-s speed] [-d duplex] [-m mtu]
+where:
+		-s speed (10/100/1000)
+			default: 1000
+
+		-d duplex (half/full)
+			default: full
+
+		-m mtu (1500)
+			default: 1500
+
+		-i interface ($string)
+			default: eth0
+"
+
+while getopts "h:?:m:d:s:i:" opt;
+	do
+	case "$opt" in
+		h|\?)
+			echo $show_help;
+			exit 0;
+		;;
+		m)  IF_EXP_MTU="$OPTARG";;
+		d)  IF_EXP_DUPLEX="$OPTARG";;
+		s)	IF_EXP_SPEED="$OPTARG";;
+		i)	IF_IFACE_NAME="$OPTARG";;
+	esac
+done
+
+shift $((OPTIND-1))
+
+[ "$1" = "--" ] && shift
+
+# something is not set? use defaults:
+if [ -z "$IF_EXP_MTU" ]; then
+	IF_EXP_MTU="1500";
+fi
+
+if [ -z "$IF_EXP_DUPLEX" ]; then
+	IF_EXP_DUPLEX="full";
+fi
+
+if [ -z "$IF_EXP_SPEED" ]; then
+	IF_EXP_SPEED="1000"
+fi
+
+if [ -z "$IF_IFACE_NAME" ]; then
+	IF_IFACE_NAME="eth0";
+fi
+
+if [ ! -d "/sys/class/net/${IF_IFACE_NAME}/" ]; then
+	echo "ERROR: no such interface \"${IF_IFACE_NAME}\"";
+	echo $show_help;
+	exit 1;
+fi
+
+IF_SPEED=`cat /sys/class/net/${IF_IFACE_NAME}/speed`
+IF_MTU=`cat /sys/class/net/${IF_IFACE_NAME}/mtu`
+IF_DUPLEX=`cat /sys/class/net/${IF_IFACE_NAME}/duplex`
+
+NAGIOS_STATE_OK=0
+NAGIOS_STATE_WARNING=1
+NAGIOS_STATE_CRITICAL=2
+
+if [ "$IF_SPEED" == "$IF_EXP_SPEED" ] && [ "$IF_MTU" == "$IF_EXP_MTU" ] && [ "$IF_DUPLEX" == "$IF_EXP_DUPLEX" ]; then
+	echo "OK: interface \"${IF_IFACE_NAME}\" is fine (speed=$IF_EXP_SPEED, duplex=$IF_EXP_DUPLEX, mtu=$IF_EXP_MTU)";
+	exit $NAGIOS_STATE_OK;
+else
+	echo "ERROR: problem with interface \"${IF_IFACE_NAME}\" (speed=$IF_SPEED, duplex=$IF_DUPLEX, mtu=$IF_MTU)";
+	exit $NAGIOS_STATE_CRITICAL;
+fi
