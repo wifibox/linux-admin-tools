@@ -5,7 +5,7 @@
 # you can invoke many MYSQL_SERVERS, one after another,
 # as a backup queue
 MYSQL_SERVERS=$@
-BACKUP_DIR="/backup/mysql/"
+BACKUP_DIR="/home/backup/mysql/"
 LOG_DIR="/var/log/"
 SKIP_DBS="information_schema performance_schema"
 
