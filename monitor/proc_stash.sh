@@ -21,12 +21,12 @@ echo "# ps arx -O wchan ########################" >> "$FILE"
 ps arx -O wchan >> "$FILE"  2>&1
 echo "# grep "" /proc/*/attr/current ###########" >> "$FILE"
 grep "" /proc/*/attr/current >> "$FILE" 2>&1
-echo "# vmstat -s ##############################" >> "$FILE"
-vmstat -s >> "$FILE" 2>&1
-echo "# vmstat -a ##############################" >> "$FILE"
-vmstat -a >> "$FILE" 2>&1
-echo "# vmstat -m ##############################" >> "$FILE"
-vmstat -m >> "$FILE" 2>&1
+echo "# vmstat --stats #########################" >> "$FILE"
+vmstat --stats >> "$FILE" 2>&1
+echo "# vmstat --active ########################" >> "$FILE"
+vmstat --active >> "$FILE" 2>&1
+echo "# vmstat --slabs #########################" >> "$FILE"
+vmstat --slabs >> "$FILE" 2>&1
 echo "# mpstat -P ALL ##########################" >> "$FILE"
 mpstat -P ALL >> "$FILE" 2>&1
 echo "# iostat -k -p ALL #######################" >> "$FILE"
@@ -35,8 +35,8 @@ echo "# finger -l ##############################" >> "$FILE"
 finger -l >> "$FILE" 2>&1
 echo "# slabtop -o #############################" >> "$FILE"
 slabtop -o >> "$FILE" 2>&1
-echo "# dmesg ##################################" >> "$FILE"
-dmesg >> "$FILE" 2>&1
+echo "# dmesg -T ###############################" >> "$FILE"
+dmesg -T >> "$FILE" 2>&1
 
 if [ "$LOAD" -gt 30 ]; then
   :> "${FILE}.WARNING"
