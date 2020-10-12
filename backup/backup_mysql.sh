@@ -8,6 +8,7 @@ MYSQL_SERVERS=$@
 BACKUP_DIR="/home/backup/mysql"
 LOG_DIR="/var/log"
 SKIP_DBS="information_schema performance_schema"
+DEL_OLDER_THAN=15
 
 DATE=$(date "+%Y%m%d%H%M")
 
@@ -49,3 +50,7 @@ for SERVER in $MYSQL_SERVERS; do
 	echo "$(date '+%Y-%m-%d %H:%M:%S'): compression of $SERVER backups finished" >> "$LOG_DIR/backup_mysql_$SERVER.log"
 done
 
+# now let's delete old backups
+for SERVER in $MYSQL_SERVERS; do
+	find $BACKUP_DIR/$SERVER/ -type d -ctime +$DEL_OLDER_THAN -exec rm -rf {} \;
+done
