@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # author: wojtosz // Wojciech Błaszkowski
 
@@ -9,6 +9,8 @@ BACKUP_DIR="/home/backup/mysql"
 LOG_DIR="/var/log"
 SKIP_DBS="information_schema performance_schema"
 DEL_OLDER_THAN=15
+DUMP_AND_COMPRESS=false
+IGNORED_TABLES_FILE="/etc/backup_mysql_ignored_tables.cfg"
 
 DATE=$(date "+%Y%m%d%H%M")
 
@@ -26,7 +28,11 @@ for SERVER in $MYSQL_SERVERS; do
 		RETRY=50
 		while [ "${RETRY}" -gt 0 ]; do
 			echo "$(date '+%Y-%m-%d %H:%M:%S'): dumping $SERVER: $MYSQL_DBASE... retry: $RETRY" >> "$LOG_DIR/backup_mysql_$SERVER.log"
-			nice -n 20 /usr/bin/mysqldump --defaults-file=/root/.my.cnf-$SERVER -h $SERVER --quick --quote-names --lock-tables --routines -f "$MYSQL_DBASE" 2> "$BACKUP_DIR/$SERVER/$DATE/mysql-$MYSQL_DBASE.sql.log" > "$BACKUP_DIR/$SERVER/$DATE/mysql-$MYSQL_DBASE.sql";
+				IGNORED_TABLES=""
+				for IGNORED_TABLE in `cat $IGNORED_TABLES_FILE | paste -sd ' '`; do
+					IGNORED_TABLES+=" --ignore-table=${MYSQL_DBASE}.${IGNORED_TABLE}"
+				done
+			nice -n 20 /usr/bin/mysqldump --defaults-file=/root/.my.cnf-$SERVER -h $SERVER --quick $IGNORED_TABLES --quote-names --lock-tables --routines -f "$MYSQL_DBASE" 2> "$BACKUP_DIR/$SERVER/$DATE/mysql-$MYSQL_DBASE.sql.log" > "$BACKUP_DIR/$SERVER/$DATE/mysql-$MYSQL_DBASE.sql";
 			if ! grep -q "connect to" "$BACKUP_DIR/$SERVER/$DATE/mysql-${MYSQL_DBASE}.sql.log"; then
 				break
 			fi
@@ -35,9 +41,21 @@ for SERVER in $MYSQL_SERVERS; do
 		done
 		# delete log file if zero size (no errors)
 		[ -s "$BACKUP_DIR/$SERVER/$DATE/mysql-${MYSQL_DBASE}.sql.log" ] || rm -f "$BACKUP_DIR/$SERVER/$DATE/mysql-${MYSQL_DBASE}.sql.log"
+		if $DUMP_AND_COMPRESS; then
+			nice -n 20 zstd -17 -q --rm "$SQL_FILE";
+		fi
 	done
 	echo "$(date '+%Y-%m-%d %H:%M:%S'): backup of $SERVER finished" >> "$LOG_DIR/backup_mysql_$SERVER.log"
 done
+
+# now let's delete old backups
+for SERVER in $MYSQL_SERVERS; do
+	find $BACKUP_DIR/$SERVER/ -type d -ctime +$DEL_OLDER_THAN -exec rm -rf {} \;
+done
+
+if $DUMP_AND_COMPRESS; then
+	exit 0;
+fi
 
 # now let's compress those dumps..
 for SERVER in $MYSQL_SERVERS; do
@@ -50,7 +68,3 @@ for SERVER in $MYSQL_SERVERS; do
 	echo "$(date '+%Y-%m-%d %H:%M:%S'): compression of $SERVER backups finished" >> "$LOG_DIR/backup_mysql_$SERVER.log"
 done
 
-# now let's delete old backups
-for SERVER in $MYSQL_SERVERS; do
-	find $BACKUP_DIR/$SERVER/ -type d -ctime +$DEL_OLDER_THAN -exec rm -rf {} \;
-done
