@@ -1,0 +1,6 @@
+
+Place file in /usr/local/sbin/ && chmod 755
+crontab /etc/cron.d/crontab-sysadmin-proc example:
+
+*/2 * * * * root /usr/local/sbin/proc_stash.sh
+@hourly root /usr/bin/find /var/log/ps/ -maxdepth 1 -type d -mtime +30 -exec rm -rf "{}" \;
